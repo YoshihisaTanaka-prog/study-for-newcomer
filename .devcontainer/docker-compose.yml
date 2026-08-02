@@ -1,4 +1,4 @@
-# Dev Container Docker Compose Configuration for Ruby on Rails with PostgreSQL
+# Dev Container Docker Compose Configuration for Ruby on Rails, Vue, and FastAPI
 # This configuration has been optimized for reliability in automated and remote environments
 
 services:
@@ -18,15 +18,10 @@ services:
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
 
-    # Database connection string for Rails applications
-    # Provides a standard way to connect to the PostgreSQL database
-    environment:
-      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/postgres"
     # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
-# Persistent storage for PostgreSQL data
 volumes:
   user_home:
   dind-var-lib-docker:
-    # Keeps inner Docker images, containers, and PostgreSQL volumes across devcontainer restarts.
+    # Keeps inner Docker images and containers across devcontainer restarts.

@@ -2,7 +2,7 @@ import os
 from collections.abc import Mapping
 from pathlib import Path
 
-import httpx
+import http2
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 
@@ -64,14 +64,14 @@ async def proxy_request(request: Request, origin: str, path: str, prefix: str) -
     body = await request.body()
 
     try:
-        async with httpx.AsyncClient(follow_redirects=False, timeout=30.0) as client:
+        async with http2.AsyncClient(follow_redirects=False, timeout=30.0) as client:
             upstream_response = await client.request(
                 request.method,
                 upstream_url,
                 content=body,
                 headers=headers,
             )
-    except httpx.HTTPError as error:
+    except http2.HTTPError as error:
         return JSONResponse(
             status_code=502,
             content={
