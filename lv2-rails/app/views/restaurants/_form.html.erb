@@ -1,0 +1,63 @@
+<% if restaurant.errors.any? %>
+  <div class="errors">
+    <p>入力内容を確認してください。</p>
+    <ul>
+      <% restaurant.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with model: restaurant, local: true, class: "stacked-form" do |form| %>
+  <div class="field">
+    <%= form.label :office_id, "オフィス" %>
+    <%= form.collection_select :office_id, @offices, :id, :name, { prompt: "選択してください" } %>
+  </div>
+
+  <div class="field">
+    <%= form.label :name, "店名" %>
+    <%= form.text_field :name, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :genre, "ジャンル" %>
+    <%= form.text_field :genre, placeholder: "例：カレー、定食、ラーメン" %>
+  </div>
+
+  <div class="field">
+    <%= form.label :tabelog_url, "食べログURL" %>
+    <%= form.url_field :tabelog_url, required: true, placeholder: "https://tabelog.com/..." %>
+  </div>
+
+  <div class="two-columns">
+    <div class="field">
+      <%= form.label :price_min, "最低価格" %>
+      <%= form.number_field :price_min, min: 0, placeholder: "800" %>
+    </div>
+
+    <div class="field">
+      <%= form.label :price_max, "最高価格" %>
+      <%= form.number_field :price_max, min: 0, placeholder: "1500" %>
+    </div>
+  </div>
+
+  <fieldset class="field">
+    <legend>支払方法</legend>
+    <div class="checks">
+      <%= form.collection_check_boxes :payment_method_ids, @payment_methods, :id, :name do |builder| %>
+        <%= builder.label { builder.check_box + builder.text } %>
+      <% end %>
+    </div>
+  </fieldset>
+
+  <div class="field">
+    <%= form.label :memo, "補足メモ" %>
+    <%= form.text_area :memo, rows: 4, placeholder: "例：昼は混む、テイクアウトあり、席が多い" %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit "投稿する", class: "button" %>
+    <%= link_to "戻る", restaurants_path, class: "subtle-link" %>
+  </div>
+<% end %>

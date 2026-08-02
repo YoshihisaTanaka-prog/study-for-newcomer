@@ -1,0 +1,77 @@
+<section class="panel narrow">
+  <% if notice.present? %>
+    <p class="notice"><%= notice %></p>
+  <% end %>
+
+  <p class="eyebrow"><%= @restaurant.office.name %></p>
+  <h1><%= @restaurant.name %></h1>
+  <p><%= @restaurant.genre.presence || "ジャンル未設定" %> / <%= @restaurant.price_label %></p>
+  <p class="payments"><%= @restaurant.payment_methods.map(&:name).join(" / ").presence || "支払方法未設定" %></p>
+
+  <% if @restaurant.memo.present? %>
+    <div class="memo">
+      <h2>匿名メモ</h2>
+      <p><%= simple_format(@restaurant.memo) %></p>
+    </div>
+  <% end %>
+
+  <div class="actions">
+    <%= link_to "食べログで詳細を見る", @restaurant.tabelog_url, target: "_blank", rel: "noopener", class: "button" %>
+    <%= link_to "投稿を編集する", edit_restaurant_path(@restaurant), class: "subtle-link" %>
+    <%= link_to "一覧へ戻る", restaurants_path, class: "subtle-link" %>
+  </div>
+</section>
+
+<section class="panel narrow">
+  <h2>匿名コメント</h2>
+
+  <% if @restaurant.reviews.any? %>
+    <div class="reviews">
+      <% @restaurant.reviews.order(created_at: :desc).each do |review| %>
+        <article class="review">
+          <p><%= simple_format(review.body) %></p>
+          <small>
+            <% if review.rating.present? %>おすすめ度: <%= "★" * review.rating %><% end %>
+            <% if review.visited_on.present? %> / 訪問日: <%= review.visited_on %><% end %>
+          </small>
+        </article>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="empty">コメントはまだありません。</p>
+  <% end %>
+
+  <h3>コメントを投稿する</h3>
+
+  <% if @review.errors.any? %>
+    <div class="errors">
+      <p>入力内容を確認してください。</p>
+      <ul>
+        <% @review.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: [@restaurant, @review], local: true, class: "stacked-form" do |form| %>
+    <div class="field">
+      <%= form.label :body, "コメント" %>
+      <%= form.text_area :body, rows: 4, required: true, placeholder: "例：提供が早い。新人ランチにも使いやすい。" %>
+    </div>
+
+    <div class="two-columns">
+      <div class="field">
+        <%= form.label :rating, "おすすめ度" %>
+        <%= form.select :rating, [["未選択", nil], ["★", 1], ["★★", 2], ["★★★", 3], ["★★★★", 4], ["★★★★★", 5]] %>
+      </div>
+
+      <div class="field">
+        <%= form.label :visited_on, "訪問日" %>
+        <%= form.date_field :visited_on %>
+      </div>
+    </div>
+
+    <%= form.submit "匿名でコメントする", class: "button" %>
+  <% end %>
+</section>

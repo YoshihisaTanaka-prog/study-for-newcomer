@@ -1,0 +1,65 @@
+<section class="hero">
+  <p class="eyebrow">匿名ランチ投稿</p>
+  <h1>食べログネイバー</h1>
+  <p>オフィス近くのランチ候補を、匿名でゆるく共有するサイトです。詳しい営業時間や写真は食べログで確認しましょう。</p>
+  <%= link_to "お店を投稿する", new_restaurant_path, class: "button" %>
+</section>
+
+<section class="panel">
+  <h2>お店を探す</h2>
+
+  <%= form_with url: restaurants_path, method: :get, local: true, class: "search-form" do |form| %>
+    <div class="field">
+      <%= form.label :office_id, "オフィス" %>
+      <%= form.collection_select :office_id, @offices, :id, :name, { include_blank: "すべて" }, { selected: params[:office_id] } %>
+    </div>
+
+    <div class="field">
+      <%= form.label :genre, "ジャンル" %>
+      <%= form.text_field :genre, value: params[:genre], placeholder: "例：カレー、定食、ラーメン" %>
+    </div>
+
+    <div class="field">
+      <%= form.label :budget, "予算上限" %>
+      <%= form.number_field :budget, value: params[:budget], min: 0, placeholder: "1000" %>
+    </div>
+
+    <fieldset class="field">
+      <legend>支払方法</legend>
+      <div class="checks">
+        <% @payment_methods.each do |payment_method| %>
+          <label>
+            <%= check_box_tag "payment_method_ids[]", payment_method.id, Array(params[:payment_method_ids]).include?(payment_method.id.to_s) %>
+            <%= payment_method.name %>
+          </label>
+        <% end %>
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <%= form.submit "検索する", class: "button" %>
+      <%= link_to "リセット", restaurants_path, class: "subtle-link" %>
+    </div>
+  <% end %>
+</section>
+
+<section class="restaurant-list">
+  <h2>投稿されたお店</h2>
+
+  <% if @restaurants.any? %>
+    <div class="cards">
+      <% @restaurants.each do |restaurant| %>
+        <article class="restaurant-card">
+          <p class="office"><%= restaurant.office.name %></p>
+          <h3><%= link_to restaurant.name, restaurant %></h3>
+          <p><%= restaurant.genre.presence || "ジャンル未設定" %> / <%= restaurant.price_label %></p>
+          <p class="payments"><%= restaurant.payment_methods.map(&:name).join(" / ").presence || "支払方法未設定" %></p>
+          <%= link_to "食べログで見る", restaurant.tabelog_url, target: "_blank", rel: "noopener", class: "subtle-link" %>
+          <%= link_to "編集", edit_restaurant_path(restaurant), class: "subtle-link" %>
+        </article>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="empty">条件に合うお店はまだありません。</p>
+  <% end %>
+</section>
