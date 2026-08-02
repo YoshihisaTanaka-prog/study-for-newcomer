@@ -23,5 +23,7 @@ module Lv2Rails
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    config.relative_url_root = ENV.fetch("RAILS_RELATIVE_URL_ROOT", "/lv-2/example")
+    config.action_controller.relative_url_root = config.relative_url_root
   end
 end

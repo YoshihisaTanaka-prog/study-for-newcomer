@@ -5,7 +5,7 @@ class RestaurantsController < ApplicationController
   def index
     @restaurants = Restaurant.includes(:office, :payment_methods).newest_first
     @restaurants = @restaurants.where(office_id: params[:office_id]) if params[:office_id].present?
-    @restaurants = @restaurants.where("genre ILIKE ?", "%#{params[:genre]}%") if params[:genre].present?
+    @restaurants = @restaurants.where("genre LIKE ?", "%#{params[:genre]}%") if params[:genre].present?
     @restaurants = @restaurants.where("price_min <= ?", params[:budget]) if params[:budget].present?
 
     if params[:payment_method_ids].present?

@@ -3,7 +3,8 @@
 {
 	"features": {
   "ghcr.io/devcontainers/features/docker-in-docker:4": {},
-  "ghcr.io/devcontainers/features/node:2": {}
+  "ghcr.io/devcontainers/features/node:2": {},
+  "ghcr.io/jsburckhardt/devcontainer-features/uv:1": {}
  },
  "name": "Ruby on Rails & Postgres",
 	"dockerComposeFile": "docker-compose.yml",
@@ -15,7 +16,7 @@
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// This can be used to network with other containers or the host.
-	"forwardPorts": [3000, 5173],
+	"forwardPorts": [3000, 5173, 8000],
 
 	// Start PostgreSQL inside Docker-in-Docker after the dev container starts.
 	"postStartCommand": "bash /commands/post-start.sh",

@@ -1,0 +1,13 @@
+[project]
+name = "lv3-fastapi"
+version = "0.1.0"
+description = "FastAPI proxy for study-for-newcomer Lv1 and Lv2"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.116.1",
+  "httpx==0.28.1",
+  "uvicorn[standard]==0.35.0",
+]
+
+[dependency-groups]
+dev = []

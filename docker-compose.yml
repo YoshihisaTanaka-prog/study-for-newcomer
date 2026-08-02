@@ -1,22 +1,26 @@
 services:
-  db:
-    image: postgres:17
-    restart: unless-stopped
+  lv2:
+    image: mcr.microsoft.com/devcontainers/ruby:3.4-bookworm
+    working_dir: /workspaces/lv2-rails
+    command: bash -lc "bundle config set path vendor/bundle && bundle exec rails server -b 0.0.0.0 -p 3000"
     ports:
-      - "5432:5432"
+      - "3000:3000"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      RAILS_ENV: development
+      RAILS_RELATIVE_URL_ROOT: /lv-2/example
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./.devcontainer/create-db-user.sql:/docker-entrypoint-initdb.d/create-db-user.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      - .:/workspaces
 
-volumes:
-  postgres-data:
+  lv3:
+    image: ghcr.io/astral-sh/uv:python3.12-bookworm
+    working_dir: /workspaces/lv3-fastapi
+    command: uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    environment:
+      LV1_DIST_DIR: /workspaces/lv1-vue/dist
+      LV2_ORIGIN: http://lv2:3000
+    volumes:
+      - .:/workspaces
+    depends_on:
+      - lv2
