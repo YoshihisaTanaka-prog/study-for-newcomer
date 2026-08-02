@@ -11,6 +11,7 @@ Rails.application.configure do
 
   # Show full error reports.
   config.consider_all_requests_local = true
+  config.hosts << "study-for-newcomer.yoshihi-service.com"
   config.hosts << "lv2"
   config.hosts << "localhost"
   config.hosts << "127.0.0.1"
