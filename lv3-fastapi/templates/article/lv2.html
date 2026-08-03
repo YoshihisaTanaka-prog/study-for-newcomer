@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>Lv2 Rails 課題</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        color: #222;
+        font-family: system-ui, sans-serif;
+        line-height: 1.8;
+      }
+
+      main {
+        max-width: 760px;
+        margin: 0 auto;
+      }
+
+      h1,
+      h2 {
+        line-height: 1.35;
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: #f3f4f6;
+      }
+
+      li {
+        margin: 8px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Lv2:【バックエンド】 Railsを用いて食べログ風サイトを作る</h1>
+
+      <p>
+        このレベルでは、食べログ風サイトをRailsで作りながら、
+        アプリがリクエストを受け取り、データを読み書きし、HTML の画面を返す流れを理解します。
+        Rails は「決まった置き場所」と「決まった名前」を大切にするフレームワークです。
+        迷ったらまず Rails Guides を読み、Rails が想定している書き方を確認してください。
+      </p>
+
+      <h2>まず読むもの</h2>
+      <ul>
+        <li>
+          <a href="https://guides.rubyonrails.org/getting_started.html" target="_blank" rel="noreferrer">
+            Rails Guides: Getting Started with Rails
+          </a>
+        </li>
+        <li>
+          <a href="https://guides.rubyonrails.org/routing.html" target="_blank" rel="noreferrer">
+            Rails Guides: Rails Routing from the Outside In
+          </a>
+        </li>
+        <li>
+          <a href="https://guides.rubyonrails.org/action_controller_overview.html" target="_blank" rel="noreferrer">
+            Rails Guides: Action Controller Overview
+          </a>
+        </li>
+        <li>
+          <a href="https://guides.rubyonrails.org/active_record_basics.html" target="_blank" rel="noreferrer">
+            Rails Guides: Active Record Basics
+          </a>
+        </li>
+      </ul>
+
+      <h2>ToDo</h2>
+      <ol>
+        <li>HTTP の基本として、GET / POST / PATCH / DELETE がそれぞれ何のために使われるか調べる。</li>
+        <li><code>bin/rails routes</code> を実行し、URL、HTTP メソッド、controller、action の対応を確認する。</li>
+        <li>「食べログネイバー」のトップページとして、飲食店の一覧ページを作る。店名、ジャンル、価格帯、最寄りオフィスを表示する。</li>
+        <li>飲食店を保存するための <code>Restaurant</code>、オフィスを保存するための <code>Office</code>、支払い方法を保存するための <code>PaymentMethod</code> の関係を確認する。</li>
+        <li>飲食店の詳細ページを作る。食べログ URL、メモ、使える支払い方法、口コミを表示する。</li>
+        <li>飲食店の登録フォームを作る。店名、ジャンル、価格帯、食べログ URL、メモ、オフィス、支払い方法を入力して保存できるようにする。</li>
+        <li>飲食店の編集フォームを作る。登録済みの情報を変更できるようにする。</li>
+        <li>詳細ページに口コミ投稿フォームを追加する。評価、訪問日、コメントを登録し、飲食店ごとに口コミが並ぶようにする。</li>
+        <li>オフィスやジャンルで飲食店を探しやすくする。余裕があれば一覧ページに絞り込みや並び替えを追加する。</li>
+        <li>ここまでできたら、会社の近くの飲食店を記録し、探し、口コミを残せる「食べログネイバー」が完成です。</li>
+      </ol>
+
+      <h2>ヒント</h2>
+      <ul>
+        <li>バックエンドを読むときは「リクエストがどこから入り、どこで処理され、何を返すか」を一本道で追うと理解しやすいです。</li>
+        <li>Rails では URL の入口は <code>config/routes.rb</code>、処理の中心は controller、DB とのやり取りは model が担当します。</li>
+        <li>JSON API は Step3 の内容です。Lv2 ではまず、Rails が HTML の画面を返す基本の流れを追ってください。</li>
+        <li>一覧ページは <code>RestaurantsController#index</code>、詳細ページは <code>show</code>、登録は <code>new</code> と <code>create</code>、編集は <code>edit</code> と <code>update</code> に分けて考えると整理しやすいです。</li>
+        <li>DB の構造を変えるときは migration、現在の結果を確認するときは <code>db/schema.rb</code> を見ます。</li>
+        <li>飲食店とオフィスは「1つのオフィスに複数の飲食店」、飲食店と支払い方法は「複数対複数」、飲食店と口コミは「1つの飲食店に複数の口コミ」という関係です。</li>
+        <li>POST や PATCH でうまく値が届かないときは、フォームの input 名、controller の parameter、strong parameters の許可項目を確認してください。</li>
+        <li>CRUD は Create、Read、Update、Delete の略です。多くのバックエンド機能は、この4つの組み合わせで考えられます。</li>
+      </ul>
+
+      <h2>困ったとき</h2>
+      <p>
+        Rails で詰まったら、エラー文だけでなく「今どの層で困っているか」を分けて考えてください。
+        URL が見つからないなら Routing、データ取得なら Active Record、画面表示なら Action View や Controller のガイドを読みます。
+        Rails らしい置き場所を知るほど、探す時間は短くなります。
+      </p>
+    </main>
+  </body>
+</html>

@@ -4,11 +4,13 @@ from pathlib import Path
 
 import httpx
 from fastapi import FastAPI, Request, Response
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.templating import Jinja2Templates
 
 
 LV2_ORIGIN = os.getenv("LV2_ORIGIN", "http://127.0.0.1:3000").rstrip("/")
 LV1_DIST_DIR = Path(os.getenv("LV1_DIST_DIR", "/workspaces/lv1-vue/dist"))
+TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 HOP_BY_HOP_HEADERS = {
     "connection",
@@ -22,11 +24,12 @@ HOP_BY_HOP_HEADERS = {
 }
 
 app = FastAPI(title="Study for Newcomer Lv3 Proxy")
+templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 
 @app.get("/")
-async def root() -> RedirectResponse:
-    return RedirectResponse(url="/lv-1/example/")
+async def root() -> Response:
+    return template_file("index.html")
 
 
 @app.get("/health")
@@ -55,7 +58,25 @@ async def serve_lv1(path: str = "") -> Response:
     methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
 )
 async def proxy_lv2(request: Request, path: str = "") -> Response:
-    return await proxy_request(request, LV2_ORIGIN, path, prefix="/lv-2/example")
+    prefix = request.url.path.removesuffix(path).rstrip("/")
+    return await proxy_request(request, LV2_ORIGIN, path, prefix=prefix)
+
+
+@app.get("/lv-{level:int}")
+async def level_contents(request: Request, level: int) -> Response:
+    return templates.TemplateResponse(
+        request=request,
+        name="contents.html",
+        context={
+            "article_url": f"/lv-{level}/article",
+            "example_url": f"/lv-{level}/example",
+        },
+    )
+
+
+@app.get("/lv-{level:int}/article")
+async def level_article(level: int) -> Response:
+    return template_file(f"article/lv{level}.html")
 
 
 async def proxy_request(request: Request, origin: str, path: str, prefix: str) -> Response:
@@ -133,6 +154,18 @@ def serve_static_file(root_dir: Path, path: str) -> Response:
 
     if fallback_path.is_file():
         return FileResponse(fallback_path)
+
+    return JSONResponse(status_code=404, content={"error": "not_found"})
+
+
+def template_file(path: str) -> Response:
+    requested_path = (TEMPLATES_DIR / path).resolve()
+
+    if not is_relative_to(requested_path, TEMPLATES_DIR.resolve()):
+        return JSONResponse(status_code=404, content={"error": "not_found"})
+
+    if requested_path.is_file():
+        return FileResponse(requested_path)
 
     return JSONResponse(status_code=404, content={"error": "not_found"})
 

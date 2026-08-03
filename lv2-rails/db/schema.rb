@@ -11,9 +11,6 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[8.1].define(version: 2026_08_02_030400) do
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "pg_catalog.plpgsql"
-
   create_table "offices", force: :cascade do |t|
     t.string "address"
     t.datetime "created_at", null: false
@@ -31,8 +28,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_030400) do
 
   create_table "restaurant_payment_methods", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.bigint "payment_method_id", null: false
-    t.bigint "restaurant_id", null: false
+    t.integer "payment_method_id", null: false
+    t.integer "restaurant_id", null: false
     t.datetime "updated_at", null: false
     t.index ["payment_method_id"], name: "index_restaurant_payment_methods_on_payment_method_id"
     t.index ["restaurant_id", "payment_method_id"], name: "idx_on_restaurant_id_payment_method_id_27d164c0b5", unique: true
@@ -44,7 +41,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_030400) do
     t.string "genre"
     t.text "memo"
     t.string "name", null: false
-    t.bigint "office_id", null: false
+    t.integer "office_id", null: false
     t.integer "price_max"
     t.integer "price_min"
     t.string "tabelog_url", null: false
@@ -58,7 +55,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_030400) do
     t.text "body", null: false
     t.datetime "created_at", null: false
     t.integer "rating"
-    t.bigint "restaurant_id", null: false
+    t.integer "restaurant_id", null: false
     t.datetime "updated_at", null: false
     t.date "visited_on"
     t.index ["restaurant_id"], name: "index_reviews_on_restaurant_id"

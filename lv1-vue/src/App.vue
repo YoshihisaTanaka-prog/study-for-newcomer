@@ -137,8 +137,8 @@ function redraw() {
       </button>
 
       <nav class="nav">
-        <a href="./">今日のおみくじ</a>
-        <a href="./no-daily">何度でも引く</a>
+        <a href="/lv-1/example/">今日のおみくじ</a>
+        <a href="/lv-1/example/no-daily">何度でも引く</a>
       </nav>
     </section>
   </main>

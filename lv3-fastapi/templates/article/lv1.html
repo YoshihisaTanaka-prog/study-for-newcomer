@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>Lv1 Vue 課題</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        color: #222;
+        font-family: system-ui, sans-serif;
+        line-height: 1.8;
+      }
+
+      main {
+        max-width: 760px;
+        margin: 0 auto;
+      }
+
+      h1,
+      h2 {
+        line-height: 1.35;
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: #f3f4f6;
+      }
+
+      li {
+        margin: 8px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Lv1:【フロントエンド】 Vueを用いておみくじサイトを作る</h1>
+
+      <p>
+        このレベルでは、おみくじ画面をVueで作ります。
+        わからない構文や API が出てきたら、まず公式ドキュメントを読んでください。
+        検索結果の記事を読む前に、一次情報で名前と考え方を確認するのが吉です。
+      </p>
+
+      <h2>まず読むもの</h2>
+      <ul>
+        <li>
+          <a href="https://vuejs.org/guide/quick-start.html" target="_blank" rel="noreferrer">
+            Vue 公式: Quick Start
+          </a>
+        </li>
+        <li>
+          <a href="https://vuejs.org/guide/essentials/template-syntax.html" target="_blank" rel="noreferrer">
+            Vue 公式: Template Syntax
+          </a>
+        </li>
+        <li>
+          <a href="https://vuejs.org/guide/essentials/reactivity-fundamentals.html" target="_blank" rel="noreferrer">
+            Vue 公式: Reactivity Fundamentals
+          </a>
+        </li>
+        <li>
+          <a href="https://vuejs.org/guide/essentials/event-handling.html" target="_blank" rel="noreferrer">
+            Vue 公式: Event Handling
+          </a>
+        </li>
+      </ul>
+
+      <h2>ToDo</h2>
+      <ol>
+        <li>自己紹介サイト をVueで作る。</li>
+        <li>アクセスする度に、0~99のいずれかの数字がランダムに表示されるサイト をVueで作る。</li>
+        <li>乱数サイトに機能を加え、おみくじサイトにする。（文言を考えると楽しい。）</li>
+        <li>JavaScriptの「localStorage」という概念について調べる。</li>
+        <li>localStorageを用いて、その日のおみくじの結果を保存する仕組みを作る</li>
+      </ol>
+
+      <h2>ヒント</h2>
+      <ul>
+        <li>最初の自己紹介サイトは、<code>&lt;template&gt;</code> に見出しや文章を書き、<code>&lt;style scoped&gt;</code> で少し見た目を整えるところから始めると進めやすいです。</li>
+        <li>ランダムな数字は JavaScript の <code>Math.random()</code> と <code>Math.floor()</code> を使うと作れます。まずは 0 以上 100 未満の整数を表示してみてください。</li>
+        <li>画面上の値をあとから変えたい場合は、Vue の <code>ref</code> を使います。ボタンで引き直すなら <code>@click</code> と組み合わせます。</li>
+        <li>おみくじ化するときは、数字の範囲ごとに「大吉」「中吉」「凶」などの文言を返す関数を作ると整理しやすいです。</li>
+        <li><code>localStorage</code> には文字列しか保存できません。日付と結果をまとめて保存したいときは、<code>JSON.stringify()</code> と <code>JSON.parse()</code> を調べてみてください。</li>
+        <li>「その日のおみくじ」にするには、今日の日付と保存済みの日付を比較します。同じ日なら保存済みの結果を使い、違う日なら新しく引く、という流れです。</li>
+      </ul>
+
+      <h2>困ったとき</h2>
+      <p>
+        エラー文をそのまま検索する前に、公式ドキュメント内で使われている単語を探してください。
+        たとえば <code>ref</code> で迷ったら Reactivity、クリック処理で迷ったら Event Handling を読む、という進め方です。
+        また、エラー文を日本語に翻訳するのも一つの手です。
+      </p>
+    </main>
+  </body>
+</html>
