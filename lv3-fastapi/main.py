@@ -11,6 +11,12 @@ from fastapi.templating import Jinja2Templates
 LV2_ORIGIN = os.getenv("LV2_ORIGIN", "http://127.0.0.1:3000").rstrip("/")
 LV1_DIST_DIR = Path(os.getenv("LV1_DIST_DIR", "/workspaces/lv1-vue/dist"))
 TEMPLATES_DIR = Path(__file__).parent / "templates"
+GITHUB_BASE_URL = "https://github.com/YoshihisaTanaka-prog/study-for-newcomer/tree/main"
+LEVEL_FOLDERS = {
+    1: "lv1-vue",
+    2: "lv2-rails",
+    3: "lv3-fastapi",
+}
 
 HOP_BY_HOP_HEADERS = {
     "connection",
@@ -70,6 +76,7 @@ async def level_contents(request: Request, level: int) -> Response:
         context={
             "article_url": f"/lv-{level}/article",
             "example_url": f"/lv-{level}/example",
+            "github_url": build_github_url(level),
         },
     )
 
@@ -168,6 +175,11 @@ def template_file(path: str) -> Response:
         return FileResponse(requested_path)
 
     return JSONResponse(status_code=404, content={"error": "not_found"})
+
+
+def build_github_url(level: int) -> str:
+    folder_name = LEVEL_FOLDERS.get(level, f"lv{level}")
+    return f"{GITHUB_BASE_URL}/{folder_name}"
 
 
 def is_relative_to(path: Path, parent: Path) -> bool:
