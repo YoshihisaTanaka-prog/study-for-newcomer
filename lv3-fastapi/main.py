@@ -260,6 +260,7 @@ def build_response_headers(
 
 def rewrite_location_header(location: str, prefix: str, request: Request) -> str:
     prefix_path = prefix.rstrip("/")
+    external_host = request.headers.get("x-forwarded-host") or request.headers.get("host", request.url.netloc)
 
     if location.startswith(prefix_path):
         return location
@@ -272,7 +273,7 @@ def rewrite_location_header(location: str, prefix: str, request: Request) -> str
     if not parsed_location.scheme or not parsed_location.netloc:
         return location
 
-    if parsed_location.netloc != request.url.netloc:
+    if parsed_location.netloc != external_host:
         return location
 
     if parsed_location.path == prefix_path or parsed_location.path.startswith(f"{prefix_path}/"):
