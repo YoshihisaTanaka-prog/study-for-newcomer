@@ -211,17 +211,30 @@ def is_relative_to(path: Path, parent: Path) -> bool:
 
 
 def build_forward_headers(request: Request, prefix: str) -> dict[str, str]:
+    origin = request.headers.get("origin")
+    origin_scheme = urlsplit(origin).scheme if origin else ""
+    forwarded_host = request.headers.get("x-forwarded-host") or request.headers.get("host", request.url.netloc)
+    forwarded_proto = request.headers.get("x-forwarded-proto") or origin_scheme or request.url.scheme
+    forwarded_port = request.headers.get("x-forwarded-port")
+
     forwarded_headers = {
         key: value
         for key, value in request.headers.items()
         if key.lower() not in HOP_BY_HOP_HEADERS and key.lower() != "host"
     }
     forwarded_headers["x-forwarded-prefix"] = prefix
-    forwarded_headers["x-forwarded-host"] = request.headers.get("host", request.url.netloc)
-    forwarded_headers["x-forwarded-proto"] = request.url.scheme
+    forwarded_headers["x-forwarded-host"] = forwarded_host
+    forwarded_headers["x-forwarded-proto"] = forwarded_proto
 
-    if request.url.port:
+    if forwarded_port:
+        forwarded_headers["x-forwarded-port"] = forwarded_port
+    elif forwarded_proto == "https":
+        forwarded_headers["x-forwarded-port"] = "443"
+    elif request.url.port:
         forwarded_headers["x-forwarded-port"] = str(request.url.port)
+
+    if forwarded_proto == "https":
+        forwarded_headers["x-forwarded-ssl"] = "on"
 
     return forwarded_headers
 
