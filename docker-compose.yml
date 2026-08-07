@@ -2,7 +2,7 @@ services:
   lv2:
     image: mcr.microsoft.com/devcontainers/ruby:3.4-bookworm
     working_dir: /workspaces/lv2-rails
-    command: bash -lc "bundle config set path vendor/bundle && bundle install && bin/rails db:migrate && bin/rails db:seed && bin/rails server -b 0.0.0.0 -p 3000"
+    command: bash -lc "bundle config set path vendor/bundle && bundle install && bin/rails server -b 0.0.0.0 -p 3000"
     ports:
       - "3000:3000"
     environment:

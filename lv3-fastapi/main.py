@@ -1,6 +1,8 @@
 import os
+import re
 from collections.abc import Mapping
 from pathlib import Path
+from urllib.parse import urlsplit, urlunsplit
 
 import httpx
 from fastapi import FastAPI, Request, Response
@@ -43,6 +45,11 @@ async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/favicon.ico")
+async def favicon() -> Response:
+    return template_file("favicon.ico")
+
+
 @app.api_route(
     "/lv-1/example",
     methods=["GET", "HEAD", "OPTIONS"],
@@ -65,6 +72,7 @@ async def serve_lv1(path: str = "") -> Response:
 )
 async def proxy_lv2(request: Request, path: str = "") -> Response:
     prefix = request.url.path.removesuffix(path).rstrip("/")
+    path = strip_duplicate_prefix(path, prefix)
     return await proxy_request(request, LV2_ORIGIN, path, prefix=prefix)
 
 
@@ -88,7 +96,7 @@ async def level_article(level: int) -> Response:
 
 async def proxy_request(request: Request, origin: str, path: str, prefix: str) -> Response:
     upstream_url = build_upstream_url(origin, path, request.url.query)
-    headers = build_forward_headers(request.headers, prefix)
+    headers = build_forward_headers(request, prefix)
     body = await request.body()
 
     try:
@@ -110,7 +118,7 @@ async def proxy_request(request: Request, origin: str, path: str, prefix: str) -
         )
 
     response_content = upstream_response.content
-    response_headers = build_response_headers(upstream_response.headers, prefix)
+    response_headers = build_response_headers(upstream_response.headers, prefix, request)
     content_type = upstream_response.headers.get("content-type", "")
 
     if content_type.startswith("text/html"):
@@ -133,6 +141,18 @@ def build_upstream_url(origin: str, path: str, query: str) -> str:
         return f"{url}?{query}"
 
     return url
+
+
+def strip_duplicate_prefix(path: str, prefix: str) -> str:
+    duplicated_prefix = prefix.strip("/")
+
+    if path == duplicated_prefix:
+        return ""
+
+    if path.startswith(f"{duplicated_prefix}/"):
+        return path.removeprefix(f"{duplicated_prefix}/")
+
+    return path
 
 
 def serve_static_file(root_dir: Path, path: str) -> Response:
@@ -190,17 +210,27 @@ def is_relative_to(path: Path, parent: Path) -> bool:
         return False
 
 
-def build_forward_headers(headers: Mapping[str, str], prefix: str) -> dict[str, str]:
+def build_forward_headers(request: Request, prefix: str) -> dict[str, str]:
     forwarded_headers = {
         key: value
-        for key, value in headers.items()
+        for key, value in request.headers.items()
         if key.lower() not in HOP_BY_HOP_HEADERS and key.lower() != "host"
     }
     forwarded_headers["x-forwarded-prefix"] = prefix
+    forwarded_headers["x-forwarded-host"] = request.headers.get("host", request.url.netloc)
+    forwarded_headers["x-forwarded-proto"] = request.url.scheme
+
+    if request.url.port:
+        forwarded_headers["x-forwarded-port"] = str(request.url.port)
+
     return forwarded_headers
 
 
-def build_response_headers(headers: Mapping[str, str], prefix: str) -> dict[str, str]:
+def build_response_headers(
+    headers: Mapping[str, str],
+    prefix: str,
+    request: Request,
+) -> dict[str, str]:
     response_headers = {
         key: value
         for key, value in headers.items()
@@ -209,15 +239,48 @@ def build_response_headers(headers: Mapping[str, str], prefix: str) -> dict[str,
 
     location = response_headers.get("location")
 
-    if location and location.startswith("/") and not location.startswith(prefix):
-        response_headers["location"] = f"{prefix}{location}"
+    if location:
+        response_headers["location"] = rewrite_location_header(location, prefix, request)
 
     return response_headers
 
 
+def rewrite_location_header(location: str, prefix: str, request: Request) -> str:
+    prefix_path = prefix.rstrip("/")
+
+    if location.startswith(prefix_path):
+        return location
+
+    if location.startswith("/"):
+        return f"{prefix_path}{location}"
+
+    parsed_location = urlsplit(location)
+
+    if not parsed_location.scheme or not parsed_location.netloc:
+        return location
+
+    if parsed_location.netloc != request.url.netloc:
+        return location
+
+    if parsed_location.path == prefix_path or parsed_location.path.startswith(f"{prefix_path}/"):
+        return urlunsplit(("", "", parsed_location.path, parsed_location.query, parsed_location.fragment))
+
+    rewritten_path = f"{prefix_path}{parsed_location.path}"
+    return urlunsplit(("", "", rewritten_path, parsed_location.query, parsed_location.fragment))
+
+
 def rewrite_html_paths(content: bytes, prefix: str) -> bytes:
     html = content.decode("utf-8", errors="ignore")
-    html = html.replace('href="/', f'href="{prefix}/')
-    html = html.replace('src="/', f'src="{prefix}/')
-    html = html.replace('action="/', f'action="{prefix}/')
+    prefix_path = prefix.rstrip("/")
+
+    def replace_attribute(match: re.Match[str]) -> str:
+        attr, quote, path = match.groups()
+
+        if path == prefix_path or path.startswith(f"{prefix_path}/"):
+            return match.group(0)
+
+        return f'{attr}={quote}{prefix_path}{path}{quote}'
+
+    html = re.sub(r'\b(href|src|action)=(["\'])(/[^"\']*)\2', replace_attribute, html)
+    html = html.replace(f"{prefix_path}{prefix_path}/", f"{prefix_path}/")
     return html.encode("utf-8")
